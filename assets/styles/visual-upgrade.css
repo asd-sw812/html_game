@@ -1,0 +1,32 @@
+:root{--battle-background-image:none}
+body.battle-mode:before{
+  background-image:
+    linear-gradient(180deg,rgba(4,9,15,.2),rgba(4,8,12,.62)),
+    var(--battle-background-image),
+    radial-gradient(ellipse at 32% 48%,#285f7c5c,transparent 35%),
+    radial-gradient(ellipse at 77% 43%,#6c30445c,transparent 29%),
+    linear-gradient(180deg,#09131f 0,#102638 57%,#172b3a 58%,#05080e 100%)!important;
+  background-size:cover,cover,cover,cover,cover!important;
+  background-position:center!important;
+}
+.external-vfx{
+  position:fixed;
+  z-index:9999;
+  width:min(34vw,380px);
+  height:min(34vw,380px);
+  object-fit:contain;
+  pointer-events:none;
+  transform:translate(-50%,-50%) scale(.5) rotate(-5deg);
+  filter:drop-shadow(0 0 18px rgba(255,255,255,.2));
+  animation:externalVfxBurst .72s cubic-bezier(.15,.8,.2,1) forwards;
+}
+.external-vfx-mental{mix-blend-mode:screen;animation-duration:.9s}
+.external-vfx-radiance{mix-blend-mode:screen}
+.external-vfx-wave{width:min(42vw,470px);height:min(42vw,470px)}
+.external-vfx-tree{width:min(38vw,420px);height:min(38vw,420px)}
+@keyframes externalVfxBurst{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.45) rotate(-8deg)}
+  18%{opacity:1;transform:translate(-50%,-50%) scale(1.12) rotate(2deg)}
+  58%{opacity:.9;transform:translate(-50%,-50%) scale(.98) rotate(0)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.18) rotate(4deg)}
+}
