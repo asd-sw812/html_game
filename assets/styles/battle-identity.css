@@ -1,0 +1,179 @@
+/* Endless Archive battle identity layer.
+   Keeps the cinematic combat composition but avoids copying another game's UI language. */
+body.battle-mode{
+  --archive-ivory:#f0e6d3;
+  --archive-amber:#d8a45f;
+  --archive-red:#b74e49;
+  --archive-ink:#0a090b;
+  --archive-glass:rgba(18,12,13,.78);
+  --archive-line:rgba(232,204,164,.26);
+}
+
+/* battlefield framing */
+body.battle-mode:after{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.34),transparent 15%,transparent 84%,rgba(0,0,0,.34)),
+    linear-gradient(180deg,rgba(0,0,0,.08),transparent 18%,transparent 68%,rgba(0,0,0,.48)),
+    radial-gradient(ellipse at 50% 48%,transparent 0 54%,rgba(0,0,0,.22) 74%,rgba(0,0,0,.62) 100%)!important;
+}
+body.battle-mode .arena:after{
+  height:1px!important;
+  background:linear-gradient(90deg,transparent,rgba(225,183,125,.10) 20%,rgba(238,210,171,.34) 50%,rgba(225,183,125,.10) 80%,transparent)!important;
+  box-shadow:0 0 20px rgba(197,111,73,.12)!important;
+}
+
+/* top boss dossier: asymmetrical archive header rather than a copied game bar */
+body.battle-mode .boss-card{
+  width:min(760px,52vw)!important;
+  padding:8px 22px 10px 26px!important;
+  border-left:3px solid var(--archive-amber)!important;
+  border-right:1px solid rgba(240,230,211,.13)!important;
+  background:linear-gradient(90deg,rgba(12,8,9,.94),rgba(23,13,14,.82) 70%,rgba(12,8,9,.28))!important;
+  clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,12px 100%,0 calc(100% - 12px))!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.28)!important;
+}
+body.battle-mode .boss-card:before{
+  content:"ARCHIVE / HOSTILE RECORD";
+  position:absolute;left:25px;top:-12px;
+  font:800 6px/1 ui-monospace,Consolas,monospace;
+  letter-spacing:.18em;color:rgba(220,190,147,.58);
+}
+body.battle-mode .boss-head{justify-content:flex-start!important}
+body.battle-mode .boss-head h2{
+  font:600 15px/1.1 Georgia,"Times New Roman",serif!important;
+  letter-spacing:.025em!important;
+  text-align:left!important;
+}
+body.battle-mode .boss-head .phase{
+  margin-left:auto!important;border-radius:0!important;
+  background:#431f22aa!important;border:1px solid #a95555aa!important;
+  clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%)!important;
+}
+body.battle-mode .boss-card .raid-layer-bar,
+body.battle-mode .boss-card .bar{
+  border-radius:0!important;height:9px!important;
+  border:1px solid rgba(232,204,164,.2)!important;
+  background:#1a1012!important;
+}
+body.battle-mode .boss-card .raid-layer-current,
+body.battle-mode .boss-card .bar i{
+  background:linear-gradient(90deg,#7f242b,#b94743,#df8c5f)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.16),0 0 10px rgba(190,75,61,.23)!important;
+}
+
+/* action queue: archive index tabs */
+body.battle-mode .turn-order{width:92px!important;gap:8px!important}
+body.battle-mode .order-chip{
+  width:78px!important;height:58px!important;padding:8px 7px 6px 14px!important;
+  border:1px solid rgba(232,204,164,.15)!important;
+  border-left:4px solid rgba(210,161,94,.58)!important;
+  border-radius:0!important;
+  background:linear-gradient(90deg,rgba(20,12,13,.92),rgba(15,10,11,.52))!important;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%)!important;
+}
+body.battle-mode .order-chip:before{
+  content:"SEQ";position:absolute;right:6px;top:5px;
+  font:800 5px/1 ui-monospace,Consolas,monospace;letter-spacing:.13em;color:#9d8064;
+}
+body.battle-mode .order-chip.now{
+  width:84px!important;background:linear-gradient(90deg,#5c361ee8,#211416d9)!important;
+  border-color:#d2a15e!important;box-shadow:0 0 20px rgba(213,154,76,.12)!important;
+}
+
+/* character identification plate */
+body.battle-mode .fighter-label{
+  min-width:380px!important;max-width:520px!important;
+  padding:11px 18px 12px 20px!important;
+  border-left:4px solid var(--archive-amber)!important;
+  background:linear-gradient(90deg,rgba(12,9,10,.94),rgba(22,13,14,.72) 72%,transparent)!important;
+  clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%)!important;
+}
+body.battle-mode .fighter-label:before{
+  content:"ACTIVE RECORD";display:block;margin-bottom:4px;
+  font:800 6px/1 ui-monospace,Consolas,monospace;letter-spacing:.2em;color:#b48b5c;
+}
+body.battle-mode .fighter-label b{font-size:20px!important;color:var(--archive-ivory)!important}
+
+/* party strip: four compact dossier cards */
+body.battle-mode .party-grid{gap:9px!important}
+body.battle-mode .unit{
+  border-radius:0!important;
+  border:1px solid rgba(230,198,157,.16)!important;
+  border-bottom:3px solid rgba(192,103,72,.58)!important;
+  background:linear-gradient(145deg,rgba(23,13,14,.95),rgba(9,8,10,.96))!important;
+  clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,8px 100%,0 calc(100% - 8px))!important;
+}
+body.battle-mode .unit:before{
+  content:"FIELD";position:absolute;z-index:7;right:6px;top:5px;
+  font:800 5px/1 ui-monospace,Consolas,monospace;letter-spacing:.12em;color:#765e4e;
+}
+body.battle-mode .unit.current{
+  border-color:rgba(230,190,128,.56)!important;
+  border-bottom-color:#d7a35d!important;
+  background:linear-gradient(145deg,rgba(79,43,24,.94),rgba(18,11,12,.96))!important;
+}
+body.battle-mode .unit-portrait{border-radius:0!important}
+body.battle-mode .unit h3{font-family:Georgia,"Times New Roman",serif!important;font-size:10px!important}
+
+/* original command deck: angled sigils, not a copied circular wheel */
+body.battle-mode .skills-area{right:30px!important;bottom:24px!important;height:146px!important}
+body.battle-mode .skill-panel{gap:12px!important;align-items:flex-end!important}
+body.battle-mode .skill,
+body.battle-mode .passive-button{
+  flex:0 0 88px!important;width:88px!important;height:88px!important;
+  border-radius:8px!important;
+  border:1px solid rgba(226,194,151,.34)!important;
+  background:
+    linear-gradient(145deg,rgba(77,49,35,.72),rgba(21,14,16,.98) 58%,rgba(8,8,10,.99))!important;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)!important;
+  box-shadow:0 0 0 3px rgba(6,5,7,.78),0 9px 24px rgba(0,0,0,.5),inset 0 0 22px rgba(221,159,93,.05)!important;
+}
+body.battle-mode .skill:before{
+  content:"";position:absolute;inset:9px;border:1px solid rgba(232,204,164,.16);
+  clip-path:inherit;pointer-events:none;
+}
+body.battle-mode .skill:hover:not(:disabled){
+  transform:translateY(-5px)!important;border-color:#e3ba79!important;filter:brightness(1.12)!important;
+}
+body.battle-mode .skill.ult{
+  flex-basis:112px!important;width:112px!important;height:112px!important;
+  border-color:#d5a95f!important;
+  background:linear-gradient(145deg,#604424,#241710 58%,#0c0909)!important;
+  box-shadow:0 0 0 4px rgba(8,6,5,.84),0 10px 28px rgba(0,0,0,.58),0 0 22px rgba(216,164,83,.13)!important;
+}
+body.battle-mode .passive-button{
+  flex-basis:64px!important;width:64px!important;height:64px!important;margin-bottom:4px!important;
+  border-color:#8f7651!important;background:linear-gradient(145deg,#393126,#151110)!important;
+}
+body.battle-mode .skill:after{
+  width:38px!important;height:38px!important;display:grid!important;place-items:center!important;
+  border:1px solid rgba(236,207,167,.25)!important;border-radius:50%!important;
+  background:rgba(8,7,8,.44)!important;
+  font:700 16px/1 ui-monospace,Consolas,monospace!important;
+  color:#f1dfc3!important;
+}
+body.battle-mode .skill.ult:after{width:48px!important;height:48px!important;font-size:18px!important;color:#ffe2a0!important}
+body.battle-mode .skill>span{
+  bottom:-20px!important;width:110px!important;font:800 6px/1 ui-monospace,Consolas,monospace!important;
+  color:#aa8f75!important;letter-spacing:.12em!important;
+}
+
+/* score/raid HUD becomes a small archive telemetry block */
+body.battle-mode .raid-hud{
+  border:0!important;border-right:3px solid var(--archive-amber)!important;
+  border-radius:0!important;background:linear-gradient(90deg,transparent,rgba(17,11,12,.9) 24%)!important;
+  clip-path:polygon(12px 0,100% 0,100% 100%,0 100%,0 12px)!important;
+  box-shadow:none!important;
+}
+body.battle-mode .raid-hud-label:before{content:"ARCHIVE TELEMETRY · ";color:#8f6e51}
+
+/* subtle film-like finish */
+body.battle-mode .arena{filter:saturate(.96) contrast(1.03)}
+body.battle-mode .fighter-art img,body.battle-mode .boss-figure img{image-rendering:auto}
+
+@media(max-width:1200px),(max-height:760px){
+  body.battle-mode .skill{width:74px!important;height:74px!important;flex-basis:74px!important}
+  body.battle-mode .skill.ult{width:94px!important;height:94px!important;flex-basis:94px!important}
+  body.battle-mode .passive-button{width:54px!important;height:54px!important;flex-basis:54px!important}
+  body.battle-mode .fighter-label{min-width:300px!important;max-width:410px!important}
+}
