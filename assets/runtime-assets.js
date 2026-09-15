@@ -130,9 +130,77 @@
     const path = cfg.backgrounds?.battle;
     if (!path) return;
     const image = new Image();
-    image.onload = () => document.documentElement.style.setProperty('--battle-background-image', `url("${path}")`);
-    image.src = path;
+    const busted = `${path}${path.includes('?') ? '&' : '?'}v=${Date.now()}`;
+    image.onload = () => document.documentElement.style.setProperty('--battle-background-image', `url("${busted}")`);
+    image.src = busted;
   }
+
+  function ensureBattleEnvironment() {
+    if (!document.body.classList.contains('battle-mode')) return;
+    const host = document.querySelector('#battleScreen') || document.querySelector('.app');
+    if (!host || host.querySelector(':scope > .archive-battle-environment')) return;
+
+    const scene = document.createElement('div');
+    scene.className = 'archive-battle-environment';
+    scene.setAttribute('aria-hidden', 'true');
+    scene.innerHTML = `
+      <div class="archive-sky-glow"></div>
+      <div class="archive-back-ruins archive-back-ruins-left"></div>
+      <div class="archive-back-ruins archive-back-ruins-right"></div>
+      <div class="archive-mid-arch"></div>
+      <div class="archive-ground-plane"></div>
+      <div class="archive-ground-rim"></div>
+      <div class="archive-ember-field"></div>
+      <div class="archive-front-vignette"></div>`;
+    host.prepend(scene);
+  }
+
+  const glyphForSkill = (button) => {
+    if (button.classList.contains('ult')) return '✦';
+    return button.dataset.skill === '0' ? '◇' : '◆';
+  };
+
+  function decorateSkillButtons() {
+    const panel = document.querySelector('#skillPanel,.skill-panel');
+    if (!panel) return;
+
+    panel.querySelectorAll('.skill').forEach((button) => {
+      if (button.querySelector(':scope > .skill-icon')) return;
+      const icon = document.createElement('span');
+      icon.className = 'skill-icon';
+      icon.textContent = glyphForSkill(button);
+      const key = document.createElement('span');
+      key.className = 'skill-keycap';
+      key.textContent = button.dataset.key || '';
+      button.append(icon, key);
+    });
+
+    panel.querySelectorAll('.passive-button').forEach((button) => {
+      if (button.querySelector(':scope > .skill-icon')) return;
+      const icon = document.createElement('span');
+      icon.className = 'skill-icon passive-glyph';
+      icon.textContent = 'P';
+      button.append(icon);
+    });
+  }
+
+  function syncBattlePresentation() {
+    ensureBattleEnvironment();
+    decorateSkillButtons();
+  }
+
+  let syncQueued = false;
+  const queueSync = () => {
+    if (syncQueued) return;
+    syncQueued = true;
+    requestAnimationFrame(() => {
+      syncQueued = false;
+      syncBattlePresentation();
+    });
+  };
+
+  const observer = new MutationObserver(queueSync);
+  observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
 
   document.addEventListener('click', (event) => {
     const control = event.target.closest('button,.btn,.deck-card,.boss-choice,.mode-option');
@@ -151,9 +219,11 @@
     playSound,
     showVfx,
     detectEffectType,
+    syncBattlePresentation,
     characterPath(id, ext = 'webp') { return `${cfg.characters?.base || './assets/images/characters/'}${id}.${ext}`; },
     bossPath(id, ext = 'webp') { return `${cfg.bosses?.base || './assets/images/bosses/'}${id}.${ext}`; }
   };
 
   applyBattleBackground();
+  queueSync();
 })();
