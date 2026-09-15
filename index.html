@@ -16,7 +16,17 @@ html,body{margin:0;width:100%;height:100%;background:#050910;color:#dce8f2;font-
   try{
     const response=await fetch('./game_code',{cache:'no-store'});
     if(!response.ok)throw new Error(`game_code load failed: ${response.status}`);
-    const html=await response.text();
+
+    const raw=await response.text();
+    const assetHead=`
+<link rel="stylesheet" href="./assets/styles/visual-upgrade.css">
+<script src="./asset-config.js"><\/script>
+<script src="./assets/runtime-assets.js"><\/script>
+`;
+    const html=/<\/head>/i.test(raw)
+      ? raw.replace(/<\/head>/i,`${assetHead}</head>`)
+      : `${assetHead}${raw}`;
+
     document.open();
     document.write(html);
     document.close();
