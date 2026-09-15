@@ -3094,9 +3094,6 @@ const VFX = (() => {
  }
  function ring(p,size=100,color=null){const n=piece('<circle r="34" fill="none" stroke="currentColor" stroke-width="1.6"/><circle r="43" fill="none" stroke="currentColor" stroke-width=".7" stroke-dasharray="2 7"/>',p,size,520);if(color&&n)n.style.color=color}
  function spark(p,size=100){piece('<path d="M0-38 5-7 32 0 5 6 0 38-5 6-32 0-5-7Z" fill="#fff3c7"/><circle r="11" fill="white" opacity=".8"/>',p,size,260,25)}
- function slash(p,size=110,rotation=-25,color=null){
-  const n=piece(`<g transform="rotate(${rotation})"><path d="M-61 27Q-10-39 69-34Q0-26-61 27Z" fill="currentColor"/><path d="M-52 32Q2-14 64-26" stroke="white" fill="none" stroke-width="1.5"/></g>`,p,size,420);if(color&&n)n.style.color=color;
- }
  function burst(p,n=9,size=100){let m='';for(let i=0;i<n;i++){const a=i/n*Math.PI*2;const r=24+rand()*9;const q=48+rand()*17;m+=`<path d="M${Math.cos(a)*r} ${Math.sin(a)*r}L${Math.cos(a)*q} ${Math.sin(a)*q}" stroke="currentColor" stroke-width="${1+rand()*2}"/>`;}piece(m,p,size,430)}
  function glyph(p,id,size=100){piece(`<g transform="translate(-24 -24)"><path d="${paths[id]||paths.skill}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></g>`,p,size,650,12)}
  function pathTrail(from,to,color,kind='line'){
@@ -3111,21 +3108,21 @@ const VFX = (() => {
   const size=tier===2?185:tier===1?130:85;
   if(reduced){glyph(p,id,75);return}
   switch(id){
-   case'bullet':{ring(p,size*.68);for(let i=0;i<(tier+1)*2;i++){const o={x:p.x+(rand()-.5)*65,y:p.y+(rand()-.5)*80};later(()=>{slash(o,65,5);spark(o,55)},i*35)}break;}
+   case'bullet':{ring(p,size*.68);glyph(p,'bullet',size*.82);for(let i=0;i<(tier+1)*2;i++){const o={x:p.x+(rand()-.5)*65,y:p.y+(rand()-.5)*80};later(()=>spark(o,55),i*35)}break;}
    case'poison':{let m='';for(let i=0;i<9;i++)m+=`<circle cx="${(rand()-.5)*85}" cy="${(rand()-.5)*70}" r="${6+rand()*14}" fill="currentColor" opacity=".25" stroke="currentColor"/>`;m+='<path d="M-40 28Q-12-8-33-29M7 37Q30 0 5-37M30 19Q58-12 27-39" fill="none" stroke="currentColor" stroke-width="2"/>';piece(m,p,size,820);break;}
-   case'counter':glyph(p,id,size);later(()=>slash(p,size,25),95);break;
-   case'follow':for(let i=0;i<3;i++)later(()=>slash({x:p.x-20+i*20,y:p.y-15+i*12},size,-30+i*35),i*65);break;
+   case'counter':glyph(p,id,size);later(()=>ring(p,size*.82,colors.counter),95);break;
+   case'follow':for(let i=0;i<3;i++)later(()=>glyph({x:p.x-24+i*24,y:p.y-18+i*12},'follow',size*.72),i*65);break;
    case'freeze':{let m='';for(let i=0;i<8;i++)m+=`<path d="M-6-16 0-66 9-28 4-5Z" transform="rotate(${i*45})" fill="currentColor" opacity=".65" stroke="#effcff" stroke-width=".6"/>`;piece(m,p,size,680,12);break;}
    case'lifesteal':{let m='<circle r="39" fill="none" stroke="currentColor" stroke-width="2"/>';for(let i=0;i<5;i++)m+=`<path d="M0-46C-15-22-9-15 0-15S15-22 0-46Z" transform="rotate(${i*72})" fill="currentColor" opacity=".6"/>`;piece(m,p,size,650,45);break;}
    case'bounce':for(let i=0;i<4;i++)later(()=>{const q={x:p.x+(i%2?38:-38),y:p.y-50+i*28};piece(`<g transform="rotate(${i*25-35})"><rect x="-13" y="-20" width="26" height="40" rx="2" fill="#0c1024" stroke="currentColor" stroke-width="2"/><path d="M0-9 7 0 0 9-7 0Z" fill="currentColor"/></g>`,q,size*.58,470,30);spark(q,35)},i*65);break;
    case'hp':{let m='<circle r="34" stroke="currentColor" stroke-width="2" fill="none"/>';for(let i=0;i<6;i++)m+=`<path d="M0 0 12-19 5-32 22-58" transform="rotate(${i*60})" stroke="currentColor" stroke-width="2" fill="none"/>`;piece(m,p,size,650);break;}
-   case'speed':for(let i=0;i<4;i++)later(()=>slash({x:p.x-i*14,y:p.y+i*9},size*1.2,-8),i*35);break;
+   case'speed':{let m='';for(let i=0;i<5;i++)m+=`<path d="M${-70-i*8} ${-28+i*14}Q0 ${-38+i*14} ${70+i*8} ${-18+i*14}" fill="none" stroke="currentColor" stroke-width="${1+i*.35}"/>`;piece(m,p,size,520);break;}
    case'debuff':{let m='<circle r="42" stroke="currentColor" stroke-width="1" stroke-dasharray="4 5" fill="none"/>';for(let i=0;i<4;i++)m+=`<g transform="rotate(${i*90}) translate(0 -35)"><rect x="-8" y="-14" width="16" height="29" fill="#161025" stroke="currentColor"/><path d="M-4-7 4 7M4-7-4 7" stroke="currentColor"/></g>`;piece(m,p,size,780,-35);break;}
    case'ult':piece('<circle r="41" fill="none" stroke="currentColor" stroke-width="6" stroke-dasharray="3 5"/><circle r="31" fill="none" stroke="currentColor"/><path d="M0-24V0L18 10" fill="none" stroke="white" stroke-width="2"/>',p,size,700,90);break;
    case'enhance':for(let i=0;i<3;i++)later(()=>piece('<path d="M0-44 38-22v44L0 44-38 22v-44Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M-17 9 0-12 17 9" stroke="white" fill="none" stroke-width="3"/>',p,size*(.6+i*.25),550,15),i*90);break;
    case'skill':{ring(p,size);for(let i=0;i<5;i++)piece(`<g transform="rotate(${i*72}) translate(0 -39)"><rect x="-10" y="-15" width="20" height="30" fill="#10152f" stroke="currentColor"/><path d="M-5-6H5M-5 0H5M-5 6H2" stroke="currentColor"/></g>`,p,size,650,50);break;}
    case'execute':piece('<path d="M-14-95H14V62L-14 90Z" fill="currentColor"/><path d="M-19-98V86M20-100V78" stroke="white" stroke-width="1.5"/>',p,size*.8,420);later(()=>burst(p,12,size),80);break;
-   case'crit':slash(p,size*1.35,-35,'#fff4d4');later(()=>slash(p,size*.9,70,'#e1ad64'),65);spark(p,size*.7);break;
+   case'crit':ring(p,size*1.05,'#fff4d4');burst(p,12,size);spark(p,size*.7);break;
    case'cleanse':ring(p,size);glyph(p,id,size*.8);piece('<path d="M-35 33v-50M35 33v-50M0 45V20" stroke="currentColor" stroke-width="2"/>',p,size,650);break;
    case'burn':{let m='';for(let i=0;i<5;i++)m+=`<path d="M${-32+i*16} 30q-23-25 0-74q-1 29 9 23q20 39-9 51Z" fill="currentColor" opacity="${.35+i*.10}"/>`;piece(m,p,size,700);burst(p,9,size*.9);break;}
    case'bleed':for(let i=0;i<3;i++)piece(`<path d="M${-30+i*26}-58 ${-45+i*26} 47 ${-21+i*26} 13Z" fill="currentColor"/>`,p,size,520);break;
@@ -3143,7 +3140,6 @@ const VFX = (() => {
   if(sub){const s=document.createElement('small');s.textContent=sub;d.appendChild(s)}root.appendChild(d);
   animate(d,[{opacity:0,transform:'translate(-50%,-25%) scale(.7)'},{opacity:1,transform:'translate(-50%,-50%) scale(1.08)',offset:.15},{opacity:1,transform:'translate(-50%,-90%) scale(1)',offset:.65},{opacity:0,transform:'translate(-50%,-160%) scale(.96)'}],{duration:reduced?550:900,fill:'forwards',easing:'ease-out'});later(()=>d.remove(),950);
  }
- function flash(p,tier){if(reduced||tier<1)return;const n=el('vfxFlash'),b=bounds();if(!n)return;n.style.setProperty('--impact-x',p.x/b.width*100+'%');n.style.setProperty('--impact-y',p.y/b.height*100+'%');animate(n,[{opacity:0},{opacity:tier===2?.18:.10,offset:.3},{opacity:0}],{duration:340,fill:'forwards'})}
  function event(kind,target,amount=0,extra={}){
   if(typeof DAMAGE_PREVIEW!=='undefined'&&DAMAGE_PREVIEW)return;
   if(!state||!target)return;
@@ -3170,9 +3166,9 @@ const VFX = (() => {
       if(g.dot){glyph(p,meta?meta.deck:state.deckId,65);return}
       pattern(meta?meta.deck:state.deckId,p,meta?meta.tier:0);
       if(g.count>1&&!reduced)for(let j=1;j<Math.min(5,g.count);j++)later(()=>spark({x:p.x+(rand()-.5)*60,y:p.y+(rand()-.5)*80},45),j*60);
-      if(meta&&!meta.boss){pathTrail(meta.origin,p,colors[meta.deck],['poison','bounce','wave','tree'].includes(meta.deck)?'arc':meta.deck==='electric'?'electric':'line');flash(p,meta.tier)}
+      if(meta&&!meta.boss)pathTrail(meta.origin,p,colors[meta.deck],['poison','bounce','wave','tree'].includes(meta.deck)?'arc':meta.deck==='electric'?'electric':'line')
       const figure=document.querySelector('.boss-figure');if(figure&&!reduced)animate(figure,[{translate:'0px 0px'},{translate:'7px -2px',offset:.2},{translate:'-3px 0px',offset:.5},{translate:'0px 0px'}],{duration:260});
-     }else{if(g.shield)glyph(p,'counter',75);else slash(p,90,30,'#f398a0');if(meta&&meta.boss)pathTrail(meta.origin,p,'#f198a9',state.boss.bossId==='observer'?'electric':'arc')}
+     }else{if(g.shield)glyph(p,'counter',75);else burst(p,7,70);if(meta&&meta.boss)pathTrail(meta.origin,p,'#f198a9',state.boss.bossId==='observer'?'electric':'arc')}
     }else if(g.kind==='heal'&&g.amount>0){textAt(q,'+'+Math.round(g.amount).toLocaleString(),'heal','체력 회복');glyph(p,'cleanse',65)}
     else if(g.kind==='shield'&&g.amount>0){textAt(q,'+'+Math.round(g.amount).toLocaleString(),'shield','보호막');glyph(p,'counter',75)}
     else if(g.kind==='buff'){glyph(p,g.negative?'debuff':'enhance',65);if(meta&&meta.support)textAt(q,g.negative?'약화':'강화','status')}
@@ -3234,7 +3230,7 @@ const VFX = (() => {
   action=meta;until=now()+total;setBusy(true);setColor('#ed8498');spriteMotion(b,meta);
   ring(meta.origin,tier===2?190:100,'#e78eab');
   if(tier===2)title('BOSS ULTIMATE',`BOSS ${String(b.displayIndex).padStart(2,'0')}`,act.aoe?'광역 공격':'단일 공격');
-  later(()=>{resolve(meta,fn);if(act.shield){glyph(point(state.boss),'counter',140);textAt(point(state.boss),'보호막','shield',act.shield.toLocaleString())}else if(tier===2)flash({x:bounds().width*.4,y:bounds().height*.5},2)},windup);
+  later(()=>{resolve(meta,fn);if(act.shield){glyph(point(state.boss),'counter',140);textAt(point(state.boss),'보호막','shield',act.shield.toLocaleString())}},windup);
   later(finish,total);
  }
  function queue(fn,delay){const battle=state;later(()=>{if(state===battle&&!state.over)fn()},Math.max(delay,busy?until-now()+35:0))}
