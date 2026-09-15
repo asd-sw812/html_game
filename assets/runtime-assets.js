@@ -37,21 +37,93 @@
     return pairs.find(([key]) => t.includes(key))?.[1] || null;
   }
 
+  const TYPE_META = {
+    bleed:    { particles: 9, streaks: 4, shake: 5 },
+    poison:   { particles: 12, streaks: 0, shake: 2 },
+    freeze:   { particles: 11, streaks: 6, shake: 4 },
+    bullet:   { particles: 6, streaks: 3, shake: 6 },
+    mental:   { particles: 8, streaks: 2, shake: 3 },
+    radiance: { particles: 12, streaks: 8, shake: 4 },
+    wave:     { particles: 8, streaks: 3, shake: 3 },
+    tree:     { particles: 10, streaks: 2, shake: 3 }
+  };
+
+  function makeLayer(className, parent) {
+    const el = document.createElement('span');
+    el.className = className;
+    parent.appendChild(el);
+    return el;
+  }
+
+  function addParticles(root, amount) {
+    for (let i = 0; i < amount; i++) {
+      const p = makeLayer('vfx-particle', root);
+      const angle = (Math.PI * 2 * i / amount) + (Math.random() - 0.5) * 0.55;
+      const distance = 48 + Math.random() * 92;
+      p.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+      p.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+      p.style.setProperty('--delay', `${Math.random() * 80}ms`);
+      p.style.setProperty('--scale', `${0.55 + Math.random() * 1.15}`);
+      p.style.setProperty('--rot', `${Math.random() * 240 - 120}deg`);
+    }
+  }
+
+  function addStreaks(root, amount) {
+    for (let i = 0; i < amount; i++) {
+      const s = makeLayer('vfx-streak', root);
+      s.style.setProperty('--angle', `${(360 / Math.max(1, amount)) * i + (Math.random() * 34 - 17)}deg`);
+      s.style.setProperty('--length', `${70 + Math.random() * 95}px`);
+      s.style.setProperty('--delay', `${Math.random() * 70}ms`);
+    }
+  }
+
+  function shakeTarget(target, strength = 3) {
+    if (!target?.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    target.animate([
+      { transform: 'translate(0,0)' },
+      { transform: `translate(${-strength}px,${Math.max(1, strength * .35)}px)` },
+      { transform: `translate(${strength}px,${-Math.max(1, strength * .25)}px)` },
+      { transform: `translate(${-strength * .45}px,0)` },
+      { transform: 'translate(0,0)' }
+    ], { duration: 145, easing: 'steps(4,end)' });
+  }
+
   function showVfx(type, target) {
+    if (!target || !TYPE_META[type]) return;
+    const rect = target.getBoundingClientRect();
+    const x = rect.left + rect.width * (0.46 + Math.random() * 0.08);
+    const y = rect.top + rect.height * (0.42 + Math.random() * 0.12);
+    const meta = TYPE_META[type];
+
+    const root = document.createElement('div');
+    root.className = `combat-vfx combat-vfx-${type}`;
+    root.setAttribute('aria-hidden', 'true');
+    root.style.left = `${x}px`;
+    root.style.top = `${y}px`;
+
+    makeLayer('vfx-core', root);
+    makeLayer('vfx-ring vfx-ring-a', root);
+    makeLayer('vfx-ring vfx-ring-b', root);
+    makeLayer('vfx-bloom', root);
+    addStreaks(root, meta.streaks);
+    addParticles(root, meta.particles);
+
     const src = cfg.vfx?.[type];
-    if (!src || !target) return;
-    const host = target.getBoundingClientRect ? target : document.body;
-    const rect = host.getBoundingClientRect();
-    const fx = document.createElement('img');
-    fx.className = `external-vfx external-vfx-${type}`;
-    fx.src = src;
-    fx.alt = '';
-    fx.setAttribute('aria-hidden', 'true');
-    fx.style.left = `${rect.left + rect.width / 2}px`;
-    fx.style.top = `${rect.top + rect.height / 2}px`;
-    document.body.appendChild(fx);
-    fx.addEventListener('animationend', () => fx.remove(), { once: true });
-    setTimeout(() => fx.remove(), 1100);
+    if (src) {
+      const texture = document.createElement('img');
+      texture.className = 'vfx-texture';
+      texture.src = src;
+      texture.alt = '';
+      root.appendChild(texture);
+    }
+
+    document.body.appendChild(root);
+    shakeTarget(target, meta.shake);
+
+    root.addEventListener('animationend', (event) => {
+      if (event.target === root) root.remove();
+    });
+    setTimeout(() => root.remove(), 1200);
   }
 
   function applyBattleBackground() {
@@ -69,8 +141,8 @@
     const skill = event.target.closest('.skill');
     if (!skill || skill.disabled) return;
     const type = detectEffectType(skill.textContent || '');
-    if (!type) return; // no generic flash/slash fallback
-    const target = document.querySelector('.boss-panel, #bossCard, .boss-card') || document.body;
+    if (!type) return;
+    const target = document.querySelector('#bossCard, .boss-card, .boss-panel') || document.body;
     requestAnimationFrame(() => showVfx(type, target));
   }, true);
 
