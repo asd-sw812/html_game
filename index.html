@@ -16,24 +16,7 @@ html,body{margin:0;width:100%;height:100%;background:#050910;color:#dce8f2;font-
   try{
     const response=await fetch('./game_code',{cache:'no-store'});
     if(!response.ok)throw new Error(`game_code load failed: ${response.status}`);
-    let html=await response.text();
-    const hook=`
-<script src="./attack_vfx.js"><\/script>
-<script>
-(() => {
-  if(typeof VFX==='undefined' || !VFX || typeof VFX.event!=='function') return;
-  const originalEvent=VFX.event.bind(VFX);
-  VFX.event=function(type,target,amount,opt={}){
-    const result=originalEvent(type,target,amount,opt);
-    if(type==='damage' && window.AttackVFX){
-      window.AttackVFX.impact(target,{crit:!!opt.crit,dot:!!opt.dot,groggy:!!(target&&target.staggered)});
-    }
-    return result;
-  };
-})();
-<\/script>`;
-    if(/<\/body>/i.test(html))html=html.replace(/<\/body>/i,hook+'\n</body>');
-    else html+=hook;
+    const html=await response.text();
     document.open();
     document.write(html);
     document.close();
