@@ -18,29 +18,33 @@ html,body{margin:0;width:100%;height:100%;background:#050910;color:#dce8f2;font-
 (async()=>{
   try{
     const noStore={cache:'no-store'};
-    const [gameRes,visualRes,cinematicRes,identityRes,configRes,runtimeRes]=await Promise.all([
+    const [gameRes,visualRes,cinematicRes,identityRes,artCssRes,configRes,runtimeRes,artJsRes]=await Promise.all([
       fetch('./game_code',noStore),
       fetch('./assets/styles/visual-upgrade.css',noStore),
       fetch('./assets/styles/battle-cinematic.css',noStore),
       fetch('./assets/styles/battle-identity.css',noStore),
+      fetch('./assets/styles/battle-art-v2.css',noStore),
       fetch('./asset-config.js',noStore),
-      fetch('./assets/runtime-assets.js',noStore)
+      fetch('./assets/runtime-assets.js',noStore),
+      fetch('./assets/battle-art-v2.js',noStore)
     ]);
 
-    const required=[gameRes,visualRes,cinematicRes,identityRes,configRes,runtimeRes];
+    const required=[gameRes,visualRes,cinematicRes,identityRes,artCssRes,configRes,runtimeRes,artJsRes];
     const failed=required.find(r=>!r.ok);
     if(failed)throw new Error(`asset load failed: ${failed.url} (${failed.status})`);
 
-    const [raw,visualCss,cinematicCss,identityCss,configJs,runtimeJs]=await Promise.all([
-      gameRes.text(),visualRes.text(),cinematicRes.text(),identityRes.text(),configRes.text(),runtimeRes.text()
+    const [raw,visualCss,cinematicCss,identityCss,artCss,configJs,runtimeJs,artJs]=await Promise.all([
+      gameRes.text(),visualRes.text(),cinematicRes.text(),identityRes.text(),artCssRes.text(),configRes.text(),runtimeRes.text(),artJsRes.text()
     ]);
 
     const injected=`
 <style id="external-visual-upgrade">${visualCss}<\/style>
 <style id="external-battle-cinematic">${cinematicCss}<\/style>
 <style id="external-battle-identity">${identityCss}<\/style>
+<style id="external-battle-art-v2">${artCss}<\/style>
 <script>${configJs}<\/script>
 <script>${runtimeJs}<\/script>
+<script>${artJs}<\/script>
 `;
 
     const html=/<\/head>/i.test(raw)
