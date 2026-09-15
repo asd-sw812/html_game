@@ -14,20 +14,35 @@ html,body{margin:0;width:100%;height:100%;background:#050910;color:#dce8f2;font-
 <script>
 (async()=>{
   try{
-    const response=await fetch('./game_code',{cache:'no-store'});
-    if(!response.ok)throw new Error(`game_code load failed: ${response.status}`);
+    const noStore={cache:'no-store'};
+    const [gameRes,visualRes,cinematicRes,identityRes,configRes,runtimeRes]=await Promise.all([
+      fetch('./game_code',noStore),
+      fetch('./assets/styles/visual-upgrade.css',noStore),
+      fetch('./assets/styles/battle-cinematic.css',noStore),
+      fetch('./assets/styles/battle-identity.css',noStore),
+      fetch('./asset-config.js',noStore),
+      fetch('./assets/runtime-assets.js',noStore)
+    ]);
 
-    const raw=await response.text();
-    const assetHead=`
-<link rel="stylesheet" href="./assets/styles/visual-upgrade.css">
-<link rel="stylesheet" href="./assets/styles/battle-cinematic.css">
-<link rel="stylesheet" href="./assets/styles/battle-identity.css">
-<script src="./asset-config.js"><\/script>
-<script src="./assets/runtime-assets.js"><\/script>
+    const required=[gameRes,visualRes,cinematicRes,identityRes,configRes,runtimeRes];
+    const failed=required.find(r=>!r.ok);
+    if(failed)throw new Error(`asset load failed: ${failed.url} (${failed.status})`);
+
+    const [raw,visualCss,cinematicCss,identityCss,configJs,runtimeJs]=await Promise.all([
+      gameRes.text(),visualRes.text(),cinematicRes.text(),identityRes.text(),configRes.text(),runtimeRes.text()
+    ]);
+
+    const injected=`
+<style id="external-visual-upgrade">${visualCss}<\/style>
+<style id="external-battle-cinematic">${cinematicCss}<\/style>
+<style id="external-battle-identity">${identityCss}<\/style>
+<script>${configJs}<\/script>
+<script>${runtimeJs}<\/script>
 `;
+
     const html=/<\/head>/i.test(raw)
-      ? raw.replace(/<\/head>/i,`${assetHead}</head>`)
-      : `${assetHead}${raw}`;
+      ? raw.replace(/<\/head>/i,`${injected}</head>`)
+      : `${injected}${raw}`;
 
     document.open();
     document.write(html);
