@@ -22,3 +22,15 @@
 - 전투/편성 BGM
 
 공통 섬광/슬래시 VFX는 사용하지 않고, 식별 가능한 공격 타입에만 해당 VFX가 나오도록 구성한다.
+
+
+## 3D 캐릭터·보스·전투 연출
+
+- `assets/subculture-3d.js`: 전투 장면, 캐릭터 카드 렌더링과 게임 이벤트 연결
+- `assets/models/toon-models.js`: 셀 셰이딩 캐릭터, 얼굴 텍스처, 의상·무기와 관절 동작
+- `assets/models/archive-stage.js`: 보스 3종과 입체적인 아카이브 전장
+- `assets/models/combat-fx.js`: 덱별 효과, 파티클 및 블룸 처리
+- `assets/3D-ART-NOTES.md`: 구현 범위와 현재 에셋의 한계
+- `tests/visual-runtime-smoke.cjs`: 전투·렌더링·모바일 회귀 확인
+
+96명은 남성 19명·여성 77명으로 구성되며, 외부 WebP 없이도 편성 카드와 전투 모델이 표시된다. 위의 이미지 슬롯은 별도 원화로 교체할 때 사용할 수 있다. WebGL2를 지원하는 브라우저에서 실행해야 한다.
