@@ -1,0 +1,43 @@
+#archive3d{position:fixed;inset:0;z-index:0;width:100%;height:100%;display:none;pointer-events:none}
+body.battle-mode.toon-ready #archive3d{display:block}
+body.battle-mode.toon-ready{background:#262a43!important}
+body.battle-mode.toon-ready .app,body.battle-mode.toon-ready #battleScreen,body.battle-mode.toon-ready .arena,body.battle-mode.toon-ready .boss-stage,body.battle-mode.toon-ready .party-stage{background:transparent!important}
+body.battle-mode.toon-ready .app{z-index:1}
+body.battle-mode.toon-ready #vfxEnvironment,body.battle-mode.toon-ready .fighter-art,body.battle-mode.toon-ready .boss-figure>*,body.battle-mode.toon-ready .boss-figure::before,body.battle-mode.toon-ready .boss-figure::after,body.battle-mode.toon-ready .arena::before,body.battle-mode.toon-ready .arena::after,body.battle-mode.toon-ready .boss-stage::before,body.battle-mode.toon-ready .boss-stage::after,body.battle-mode.toon-ready .party-stage::before,body.battle-mode.toon-ready .party-stage::after{visibility:hidden!important}
+/* Preserve DOM hit regions, damage numbers, targeting and gameplay HUD. */
+body.battle-mode.toon-ready #vfxCanvas{visibility:hidden}
+body.selection-mode{background:radial-gradient(ellipse at 30% 0,#494c77,#171b31 70%)!important}
+body.selection-mode .loadout-card{border:1px solid #c9ccef6b!important;border-radius:5px!important;box-shadow:0 14px 40px #090c2699!important;overflow:hidden;transition:transform .2s,border-color .2s}
+body.selection-mode .loadout-card:hover,body.selection-mode .loadout-card:focus-visible{transform:translateY(-8px);border-color:#f1e5c7!important;outline:2px solid var(--accent)}
+.loadout-card-art .toon-portrait{width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 25%!important;display:block;filter:none!important}
+body.selection-mode .loadout-card-art::after{background:linear-gradient(0deg,#101528c9,transparent 42%)!important}
+body.selection-mode .loadout-card-info{background:linear-gradient(0deg,#171b32 55%,#171b3200)!important;color:#f3edff!important}
+body.selection-mode .loadout-card-info b{font-family:system-ui,sans-serif!important;letter-spacing:.06em}
+.toon-portrait{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.deck-row-portrait .toon-portrait{position:absolute;inset:0}
+.render-error{position:fixed;bottom:10px;left:10px;z-index:10000;padding:12px;background:#242039;color:white;border:1px solid #e3b2cc}
+@media(prefers-reduced-motion:reduce){body.selection-mode .loadout-card{transition:none}body.selection-mode .loadout-card:hover{transform:none}}
+
+body.battle-mode.toon-ready .party-art-v2{display:none!important}
+body.battle-mode.toon-ready .unit-portrait .toon-portrait{position:absolute;inset:0;object-fit:cover;object-position:center 16%;z-index:4}
+@media (orientation:landscape) and (max-width:1200px), (orientation:landscape) and (max-height:700px){
+ body.battle-mode.toon-ready .app{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-width:0!important;min-height:0!important;transform:none!important;contain:none!important}
+ body.battle-mode.toon-ready #battleScreen,body.battle-mode.toon-ready .arena{width:100%!important;height:100%!important;min-width:0!important;min-height:0!important}
+ body.battle-mode.toon-ready .turn-order{left:8px!important;top:48px!important;bottom:96px!important;width:48px!important}
+ body.battle-mode.toon-ready .party-grid{left:65px!important;bottom:8px!important;width:49vw!important;height:80px!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:4px!important}
+ body.battle-mode.toon-ready .unit{height:78px!important;padding:5px 4px 4px 27px!important}
+ body.battle-mode.toon-ready .unit-portrait{width:23px!important}
+ body.battle-mode.toon-ready .skills-area{right:12px!important;bottom:8px!important;height:78px!important}
+ body.battle-mode.toon-ready .skill-panel{height:78px!important;gap:6px!important;right:0!important;bottom:0!important}
+ body.battle-mode.toon-ready .skill{width:54px!important;height:54px!important;flex-basis:54px!important}
+ body.battle-mode.toon-ready .skill.ult{width:66px!important;height:66px!important;flex-basis:66px!important}
+ body.battle-mode.toon-ready .passive-button{width:38px!important;height:38px!important;flex-basis:38px!important}
+ body.battle-mode.toon-ready .fighter-label{display:none!important}
+ body.battle-mode.toon-ready .boss-card{top:47px!important;right:10px!important;left:auto!important;width:46vw!important;max-height:112px!important}
+ body.battle-mode.toon-ready .raid-hud{right:10px!important;top:4px!important;width:210px!important}
+ body.battle-mode.toon-ready .skill-detail{width:260px!important;bottom:calc(100% + 9px)!important;max-height:175px!important;overflow:auto!important}
+}
+@media (orientation:landscape) and (max-width:1200px), (orientation:landscape) and (max-height:700px){
+ body.battle-mode.toon-ready .party-grid{position:fixed!important;left:65px!important;bottom:8px!important;top:auto!important}
+ body.battle-mode.toon-ready .boss-card{position:fixed!important;transform:none!important;left:auto!important;right:12px!important;top:47px!important;width:40vw!important;max-height:100px!important}
+}

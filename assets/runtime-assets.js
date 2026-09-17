@@ -297,12 +297,7 @@
   document.addEventListener('click', (event) => {
     const control = event.target.closest('button,.btn,.deck-card,.boss-choice,.mode-option');
     if (control) playSound(cfg.audio?.uiClick, 0.32);
-    const skill = event.target.closest('.skill');
-    if (!skill || skill.disabled) return;
-    const type = detectEffectType(skill.textContent || '');
-    if (!type) return;
-    const target = document.querySelector('.boss-figure') || document.querySelector('#bossCard,.boss-card,.boss-panel') || document.body;
-    requestAnimationFrame(() => showVfx(type, target));
+    // Combat VFX are dispatched by resolved game events, never by selection clicks.
   }, true);
 
   window.GameAssets = {

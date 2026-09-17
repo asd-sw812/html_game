@@ -1005,8 +1005,19 @@ if(EXECUTE_DECK){
  EXECUTE_DECK.party[3].note="전열을 버티면서 메인딜의 처형 준비를 보조.";
 }
 
+// Stable roster order: nearest whole-person split for a 96-character roster (19 / 77).
+const VISUAL_ROSTER=DECKS.flatMap(d=>d.party.map(c=>({c,d})));
+VISUAL_ROSTER.forEach(({c,d},i)=>{
+ c.visualIndex=i;
+ c.gender=Math.floor((i+1)*19/96)>Math.floor(i*19/96)?"male":"female";
+ c.visualAccent=d.color;
+});
+window.ArchiveGame={
+ roster:()=>VISUAL_ROSTER.map(({c,d})=>({...c,deckId:d.id})),
+ snapshot:()=>({battle:document.body.classList.contains('battle-mode'),players:state?.players||[],activeId:state?.currentId,bossId:state?.boss?.bossId||selectedBossId,deckId:state?.deckId||selectedDeckId,reduced:VFX.reduced}),
+};
 const CHARACTER_IMAGES={};
-function portraitHTML(c){const src=CHARACTER_IMAGES[c.id];return `<div class="unit-portrait">${src?`<img src="${src}" alt="SLOT ${String((c.index??0)+1).padStart(2,"0")} 전투 스탠딩" decoding="async" onerror="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"><div class="portrait-empty hidden">IMAGE READY</div>`:`<div class="portrait-empty">IMAGE READY</div>`}</div>`}
+function portraitHTML(c){const src=CHARACTER_IMAGES[c.id];return `<div class="unit-portrait" data-portrait-id="${c.id}">${src?`<img src="${src}" alt="SLOT ${String((c.index??0)+1).padStart(2,"0")} 전투 스탠딩" decoding="async" onerror="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"><div class="portrait-empty hidden">IMAGE READY</div>`:`<div class="portrait-empty">IMAGE READY</div>`}</div>`}
 function deckArtHTML(d){const lead=d.party[0],src=CHARACTER_IMAGES[lead.id],sigil=d.name.slice(0,1);return `<div class="deck-art" style="--accent:${d.color}">${src?`<img src="${src}" alt="${d.name} 대표 캐릭터" decoding="async" onerror="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"><span class="deck-sigil hidden">${sigil}</span>`:`<span class="deck-sigil">${sigil}</span>`}</div>`}
 function activeFighterHTML(p){
  if(!p)return "";
@@ -1020,12 +1031,12 @@ function loadoutCardHTML(c,i,d){
  const src=CHARACTER_IMAGES[c.id];
  const slot=String(i+1).padStart(2,"0");
  const stats=configuredStats(c),used=statPointsUsed(c);
- return `<article class="loadout-card" data-character-card="${c.id}" role="button" tabindex="0" style="--accent:${d.color};--slot:${i}" aria-label="편성 슬롯 ${slot} 상세 정보 열기"><div class="loadout-card-art">${src?`<img src="${src}" alt="편성 슬롯 ${slot}" decoding="async" onerror="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"><div class="loadout-card-empty hidden" data-initial="${slot}"></div>`:`<div class="loadout-card-empty" data-initial="${slot}"></div>`}</div><div class="loadout-card-corner">${slot}</div><div class="stat-open" aria-hidden="true"><b>DETAIL</b><span>ATK ${stats.atk} · HP ${stats.maxHp}</span><small>${used}/${STAT_POINT_BUDGET} POINT</small></div><div class="loadout-card-info"><span>${c.element} · ${attackTypeLabel(c.attackType)}</span><b>${c.roleDetail}</b><small>SLOT ${slot}${c.resourceLabel?` · ${c.resourceLabel}`:""}</small></div></article>`
+ return `<article class="loadout-card" data-character-card="${c.id}" role="button" tabindex="0" style="--accent:${d.color};--slot:${i}" aria-label="편성 슬롯 ${slot} 상세 정보 열기"><div class="loadout-card-art" data-portrait-id="${c.id}">${src?`<img src="${src}" alt="편성 슬롯 ${slot}" decoding="async" onerror="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"><div class="loadout-card-empty hidden" data-initial="${slot}"></div>`:`<div class="loadout-card-empty" data-initial="${slot}"></div>`}</div><div class="loadout-card-corner">${slot}</div><div class="stat-open" aria-hidden="true"><b>DETAIL</b><span>ATK ${stats.atk} · HP ${stats.maxHp}</span><small>${used}/${STAT_POINT_BUDGET} POINT</small></div><div class="loadout-card-info"><span>${c.element} · ${attackTypeLabel(c.attackType)}</span><b>${c.roleDetail}</b><small>${c.gender==="male"?"남성":"여성"} · SLOT ${slot}${c.resourceLabel?` · ${c.resourceLabel}`:""}</small></div></article>`
 }
 function deckRowPortraitHTML(c,d,i){
  const src=CHARACTER_IMAGES[c.id];
  const slot=String(i+1).padStart(2,"0");
- return `<div class="deck-row-portrait" style="--accent:${d.color}" aria-label="슬롯 ${slot} · ${c.roleDetail}">${src?`<img src="${src}" alt="" decoding="async" onerror="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"><span class="hidden">${slot}</span>`:`<span>${slot}</span>`}<small>SLOT ${slot} · ${c.roleDetail}</small></div>`
+ return `<div class="deck-row-portrait" data-portrait-id="${c.id}" style="--accent:${d.color}" aria-label="슬롯 ${slot} · ${c.roleDetail}">${src?`<img src="${src}" alt="" decoding="async" onerror="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"><span class="hidden">${slot}</span>`:`<span>${slot}</span>`}<small>SLOT ${slot} · ${c.roleDetail}</small></div>`
 }
 
 function findCharacter(charId){for(const d of DECKS){const c=d.party.find(x=>x.id===charId);if(c)return {c,d,index:d.party.indexOf(c)}}return null}
@@ -3149,6 +3160,7 @@ const VFX = (() => {
   later(()=>showEvents([e],null),0);
  }
  function showEvents(list,meta){
+  window.Archive3D?.effects(list,meta);
   const groups=new Map();
   for(const e of list){const key=e.kind+':'+e.id+':'+!!e.dot;const g=groups.get(key)||{...e,amount:0,shield:0,count:0,crit:false};g.amount+=e.amount||0;g.shield+=e.shield||0;g.count++;g.crit=g.crit||!!e.crit;groups.set(key,g)}
   let i=0;
@@ -3181,6 +3193,7 @@ const VFX = (() => {
   animate(n,[{opacity:0,transform:'translateX(-35px)'},{opacity:1,transform:'translateX(0)',offset:.18},{opacity:1,transform:'translateX(0)',offset:.7},{opacity:0,transform:'translateX(28px)'}],{duration:reduced?500:1000,fill:'forwards'});
  }
  function spriteMotion(actor,meta){
+  if(window.Archive3D?.ready){window.Archive3D.cast(actor,meta);return;}
   if(reduced)return;const root=el('vfxStage');const source=document.querySelector(actor.side==='enemy'?'.boss-figure':'#activeFighter .fighter-art');if(!root||!source)return;
   if(actor.side==='enemy'){
    animate(source,[{translate:'0 0',scale:'1'},{translate:'12px -4px',scale:'1.03',offset:.45},{translate:'-18px 0',scale:'1.01',offset:.72},{translate:'0 0',scale:'1'}],{duration:meta.total,easing:'ease-in-out'});return;
@@ -3234,7 +3247,7 @@ const VFX = (() => {
   later(finish,total);
  }
  function queue(fn,delay){const battle=state;later(()=>{if(state===battle&&!state.over)fn()},Math.max(delay,busy?until-now()+35:0))}
- function reset(){session++;for(const t of timers)clearTimeout(t);timers.clear();for(const a of Array.from(animations))a.cancel();animations.clear();finish();events=[];capturing=false;resolving=false;const c=canvas();if(c)c.replaceChildren();const root=el('vfxStage');if(root)root.querySelectorAll('.vfx-readout,.vfx-sprite').forEach(n=>n.remove());}
+ function reset(){window.Archive3D?.reset();session++;for(const t of timers)clearTimeout(t);timers.clear();for(const a of Array.from(animations))a.cancel();animations.clear();finish();events=[];capturing=false;resolving=false;const c=canvas();if(c)c.replaceChildren();const root=el('vfxStage');if(root)root.querySelectorAll('.vfx-readout,.vfx-sprite').forEach(n=>n.remove());}
  function setColor(c){const root=el('vfxStage');if(root)root.style.setProperty('--vfx-color',c||'#b2d6ee')}
  function scene(id){
   const tint=id==='devourer'?'#8a374a':id==='observer'?'#7469a4':'#345978';
