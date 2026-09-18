@@ -1,14 +1,4 @@
 window.GAME_ASSETS = {
-  vfx: {
-    bleed: './assets/vfx/bleed.svg',
-    poison: './assets/vfx/poison.svg',
-    freeze: './assets/vfx/freeze.svg',
-    bullet: './assets/vfx/bullet.svg',
-    mental: './assets/vfx/mental.svg',
-    radiance: './assets/vfx/radiance.svg',
-    wave: './assets/vfx/wave.svg',
-    tree: './assets/vfx/tree.svg'
-  },
   audio: {
     uiClick: './assets/audio/ui/click.ogg',
     battleStart: './assets/audio/ui/battle_start.ogg',
