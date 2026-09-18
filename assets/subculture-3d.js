@@ -3,9 +3,8 @@ import {character,pose,releaseCharacter,preloadCharacters} from './models/handma
 import {release} from './models/toon-models.js';
 import {boss,animateBoss,environment} from './models/archive-stage.js?v=anime-v4';
 import {CombatFX,BloomPass} from './models/combat-fx.js';
-import {installCardArt} from './card-art.js';
 const api=window.ArchiveGame,roster=api.roster(),byId=new Map(roster.map(c=>[c.id,c]));
-const cards=installCardArt(roster);preloadCharacters(roster.slice(0,4));
+preloadCharacters(roster.slice(0,4));
 let renderer,scene,camera,world,fx,bloom,enemy,party=[],animation=null,lastKey='',lastTime=0;
 let lost=false,lastDraw={calls:0,triangles:0},generation=0,activeId=null,loading=false,loadError='';
 const reduced=()=>api.snapshot().reduced;
@@ -95,7 +94,7 @@ function init(){
  const resize=()=>{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();bloom.resize(Math.round(innerWidth*renderer.getPixelRatio()),Math.round(innerHeight*renderer.getPixelRatio()));};addEventListener('resize',resize);resize();
  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();lost=true;document.body.classList.remove('toon-ready');});
  canvas.addEventListener('webglcontextrestored',()=>{lost=false;document.body.classList.add('toon-ready');resize();});
- window.Archive3D={ready:true,cast,effects,reset,screenPoint(id){const p=enemy&&api.snapshot().players.every(p=>p.id!==id)?enemy:party.find(p=>p.userData.id===id&&p.visible);if(!p)return null;const v=p.position.clone().add(new T.Vector3(0,p===enemy?1.5:1.8,0)).project(camera);return {x:(v.x+1)*innerWidth/2,y:(1-v.y)*innerHeight/2};},stats:()=>({roster:roster.length,male:roster.filter(c=>c.gender==='male').length,portraits:cards.count(),models:party.length,loading,loadError,...fx.stats(),quality:'handmade-anime-v5',visibleModels:party.filter(p=>p.visible).length,activeModel:activeId,battleRevision:api.snapshot().battleRevision,modelKeys:party.map(p=>p.userData.key),drawCalls:lastDraw.calls,triangles:lastDraw.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures})};
+ window.Archive3D={ready:true,cast,effects,reset,screenPoint(id){const p=enemy&&api.snapshot().players.every(p=>p.id!==id)?enemy:party.find(p=>p.userData.id===id&&p.visible);if(!p)return null;const v=p.position.clone().add(new T.Vector3(0,p===enemy?1.5:1.8,0)).project(camera);return {x:(v.x+1)*innerWidth/2,y:(1-v.y)*innerHeight/2};},stats:()=>({roster:roster.length,male:roster.filter(c=>c.gender==='male').length,portraits:0,models:party.length,loading,loadError,...fx.stats(),quality:'handmade-anime-v5',visibleModels:party.filter(p=>p.visible).length,activeModel:activeId,battleRevision:api.snapshot().battleRevision,modelKeys:party.map(p=>p.userData.key),drawCalls:lastDraw.calls,triangles:lastDraw.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures})};
  document.body.classList.add('toon-ready');modelStatus(false);requestAnimationFrame(frame);
 }
 init();

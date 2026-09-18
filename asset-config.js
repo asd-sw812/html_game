@@ -1,19 +1,4 @@
 window.GAME_ASSETS = {
-  backgrounds: {
-    battle: './assets/images/generated/battle-stage.webp',
-    fallbackBattle: './assets/images/backgrounds/battle-grid.svg'
-  },
-  characters: {
-    base: './assets/images/characters/',
-    formationAtlas: './assets/images/generated/formation-atlas.webp',
-    battleAtlas: './assets/images/generated/battle-atlas.webp',
-    atlasColumns: 4,
-    atlasRows: 4
-  },
-  bosses: {
-    base: './assets/images/bosses/',
-    judge: './assets/images/generated/boss-judge.webp'
-  },
   vfx: {
     bleed: './assets/vfx/bleed.svg',
     poison: './assets/vfx/poison.svg',
