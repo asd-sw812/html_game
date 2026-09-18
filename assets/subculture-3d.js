@@ -1,5 +1,5 @@
 import * as T from './vendor/three.module.js';
-import {character,pose,releaseCharacter,preloadCharacters} from './models/anime-characters.js';
+import {character,pose,releaseCharacter,preloadCharacters} from './models/handmade-characters.js';
 import {release} from './models/toon-models.js';
 import {boss,animateBoss,environment} from './models/archive-stage.js?v=anime-v4';
 import {CombatFX,BloomPass} from './models/combat-fx.js';
@@ -31,7 +31,9 @@ async function syncBattle(s){
  // Keep the whole four-person formation in the 3D scene. The active unit is
  // brought forward and enlarged in frame(), while the other three remain in
  // the staggered line visible in the reference battle composition.
- for(const model of party){model.rotation.y=2.10;model.visible=true;scene.add(model);}
+ // Handmade characters are authored front-first (+Z). Turn them a little
+ // toward the boss so the camera keeps their faces readable in the lineup.
+ for(const model of party){model.rotation.y=.42;model.visible=true;scene.add(model);}
  const failed=loaded.find(x=>x.status==='rejected');
  if(failed){console.error('Anime character loading failed',failed.reason);modelStatus(false,'캐릭터를 불러오지 못했습니다. 화면을 새로고침해 주세요.');}else modelStatus(false);
 }
@@ -54,7 +56,7 @@ function frame(time){
  const halfWidth=(8.3-1.7)*Math.tan(34*Math.PI/360)*camera.aspect;
  const activeIndex=Math.max(0,s.players.findIndex(p=>p.id===activeId));
  const formation=[
-  [-2.35,.48,.62],[-1.55,.28,.70],[-.75,.10,.78],[.05,-.08,.86]
+  [-2.18,.18,.72],[-1.42,.10,.76],[-.66,.02,.80],[.10,-.06,.84]
  ];
  if(enemy)enemy.position.x=halfWidth*.67;
  for(let i=0;i<party.length;i++){
@@ -65,9 +67,11 @@ function frame(time){
   const [x,z,depth]=formation[i]||[-1+i*.8,0,.75];
   const isActive=p.userData.id===activeId;
   if(animation?.model!==p){
-   p.position.set(isActive?x-.18:x,z+(isActive?.42:0),depth+(isActive?.22:0));
+   p.position.set(isActive?x-.12:x,z+(isActive?.28:0),depth+(isActive?.10:0));
   }
-  p.scale.setScalar(isActive?1.14:.82);
+  // Keep the four-person lineup visually coherent. The acting unit is only
+  // slightly closer/larger; it must not dwarf the other three.
+  p.scale.setScalar(isActive?1.02:.92);
   pose(p,t+i,action|| (s.preparedId===p.userData.id?{prepared:true}:null),reduced(),dt);
  }
  if(enemy)animateBoss(enemy,t,reduced());world.update(t,reduced());let zoom=0;
@@ -91,7 +95,7 @@ function init(){
  const resize=()=>{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();bloom.resize(Math.round(innerWidth*renderer.getPixelRatio()),Math.round(innerHeight*renderer.getPixelRatio()));};addEventListener('resize',resize);resize();
  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();lost=true;document.body.classList.remove('toon-ready');});
  canvas.addEventListener('webglcontextrestored',()=>{lost=false;document.body.classList.add('toon-ready');resize();});
- window.Archive3D={ready:true,cast,effects,reset,screenPoint(id){const p=enemy&&api.snapshot().players.every(p=>p.id!==id)?enemy:party.find(p=>p.userData.id===id&&p.visible);if(!p)return null;const v=p.position.clone().add(new T.Vector3(0,p===enemy?1.5:1.8,0)).project(camera);return {x:(v.x+1)*innerWidth/2,y:(1-v.y)*innerHeight/2};},stats:()=>({roster:roster.length,male:roster.filter(c=>c.gender==='male').length,portraits:cards.count(),models:party.length,loading,loadError,...fx.stats(),quality:'skinned-anime-v4',visibleModels:party.filter(p=>p.visible).length,activeModel:activeId,battleRevision:api.snapshot().battleRevision,modelKeys:party.map(p=>p.userData.key),drawCalls:lastDraw.calls,triangles:lastDraw.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures})};
+ window.Archive3D={ready:true,cast,effects,reset,screenPoint(id){const p=enemy&&api.snapshot().players.every(p=>p.id!==id)?enemy:party.find(p=>p.userData.id===id&&p.visible);if(!p)return null;const v=p.position.clone().add(new T.Vector3(0,p===enemy?1.5:1.8,0)).project(camera);return {x:(v.x+1)*innerWidth/2,y:(1-v.y)*innerHeight/2};},stats:()=>({roster:roster.length,male:roster.filter(c=>c.gender==='male').length,portraits:cards.count(),models:party.length,loading,loadError,...fx.stats(),quality:'handmade-anime-v5',visibleModels:party.filter(p=>p.visible).length,activeModel:activeId,battleRevision:api.snapshot().battleRevision,modelKeys:party.map(p=>p.userData.key),drawCalls:lastDraw.calls,triangles:lastDraw.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures})};
  document.body.classList.add('toon-ready');modelStatus(false);requestAnimationFrame(frame);
 }
 init();

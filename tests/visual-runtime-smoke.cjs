@@ -29,7 +29,7 @@ const server=http.createServer((req,res)=>{
   await page.evaluate(()=>startBattle());
   await page.waitForFunction(()=>Archive3D.stats().drawCalls>0&&Archive3D.stats().models===4&&!Archive3D.stats().loading);
   await page.waitForTimeout(500);
-  assert.equal(await page.evaluate(()=>Archive3D.stats().quality),'skinned-anime-v4');
+  assert.equal(await page.evaluate(()=>Archive3D.stats().quality),'handmade-anime-v5');
   assert.equal(await page.evaluate(()=>Archive3D.stats().visibleModels),4,'All four party characters must remain in the 3D battlefield');
   await capture('battle');
   const score=await page.evaluate(()=>state.score);
