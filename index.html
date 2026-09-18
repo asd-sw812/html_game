@@ -18,23 +18,25 @@ html,body{margin:0;width:100%;height:100%;background:#050910;color:#dce8f2;font-
 (async()=>{
   try{
     const noStore={cache:'no-store'};
-    const [gameRes,visualRes,cinematicRes,identityRes,artCssRes,configRes,runtimeRes,artJsRes]=await Promise.all([
+    const [gameRes,visualRes,cinematicRes,identityRes,artCssRes,generatedCssRes,configRes,runtimeRes,artJsRes,generatedJsRes]=await Promise.all([
       fetch('./game_code',noStore),
       fetch('./assets/styles/visual-upgrade.css',noStore),
       fetch('./assets/styles/battle-cinematic.css',noStore),
       fetch('./assets/styles/battle-identity.css',noStore),
       fetch('./assets/styles/battle-art-v2.css',noStore),
+      fetch('./assets/styles/generated-art.css',noStore),
       fetch('./asset-config.js',noStore),
       fetch('./assets/runtime-assets.js',noStore),
-      fetch('./assets/battle-art-v2.js',noStore)
+      fetch('./assets/battle-art-v2.js',noStore),
+      fetch('./assets/generated-art.js',noStore)
     ]);
 
-    const required=[gameRes,visualRes,cinematicRes,identityRes,artCssRes,configRes,runtimeRes,artJsRes];
+    const required=[gameRes,visualRes,cinematicRes,identityRes,artCssRes,generatedCssRes,configRes,runtimeRes,artJsRes,generatedJsRes];
     const failed=required.find(r=>!r.ok);
     if(failed)throw new Error(`asset load failed: ${failed.url} (${failed.status})`);
 
-    const [raw,visualCss,cinematicCss,identityCss,artCss,configJs,runtimeJs,artJs]=await Promise.all([
-      gameRes.text(),visualRes.text(),cinematicRes.text(),identityRes.text(),artCssRes.text(),configRes.text(),runtimeRes.text(),artJsRes.text()
+    const [raw,visualCss,cinematicCss,identityCss,artCss,generatedCss,configJs,runtimeJs,artJs,generatedJs]=await Promise.all([
+      gameRes.text(),visualRes.text(),cinematicRes.text(),identityRes.text(),artCssRes.text(),generatedCssRes.text(),configRes.text(),runtimeRes.text(),artJsRes.text(),generatedJsRes.text()
     ]);
 
     const injected=`
@@ -42,9 +44,11 @@ html,body{margin:0;width:100%;height:100%;background:#050910;color:#dce8f2;font-
 <style id="external-battle-cinematic">${cinematicCss}<\/style>
 <style id="external-battle-identity">${identityCss}<\/style>
 <style id="external-battle-art-v2">${artCss}<\/style>
+<style id="external-generated-art">${generatedCss}<\/style>
 <script>${configJs}<\/script>
 <script>${runtimeJs}<\/script>
 <script>${artJs}<\/script>
+<script>${generatedJs}<\/script>
 <link rel="stylesheet" href="./assets/styles/subculture-3d.css">
 <script type="module" src="./assets/subculture-3d.js"><\/script>
 `;
