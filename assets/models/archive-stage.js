@@ -1,20 +1,28 @@
 import * as T from '../vendor/three.module.js';
 import { sculpt as S, toon } from './toon-models.js';
 const {put,ell,cube,surface,tube,rod,ring,panel,ribbon,batch}=S;
-const porcelain='#d9d9e4',shadow='#222b49',gold='#b8a97d';
+const porcelain='#e5dbe3',shadow='#282035',gold='#d2ae73';
 function plate(group,col,points,pos,scale=1){const p=panel(group,col,points,.035);p.position.set(...pos);p.scale.setScalar(scale);return p;}
 function mask(group,col,pos,size=1){const g=new T.Group();g.position.set(...pos);g.scale.setScalar(size);group.add(g);
  const face=new T.SphereGeometry(1,32,24),v=face.attributes.position;for(let i=0;i<v.count;i++){const y=v.getY(i);v.setX(i,v.getX(i)*(.85+Math.min(0,y)*.28));}face.computeVertexNormals();put(g,face,porcelain,[0,0,0],[.14,.24,.10]);
  for(const s of [-1,1]){tube(g,shadow,[[s*.023,.035,.092],[s*.07,.032,.083],[s*.108,.048,.071]],.009);tube(g,col,[[s*.067,.015,.09],[s*.062,-.07,.088],[s*.077,-.10,.065]],.003)}
  tube(g,shadow,[[.012,.23,.045],[-.019,.14,.087],[.033,.062,.104],[.01,-.01,.107],[.043,-.078,.09]],.003);tube(g,shadow,[[-.024,-.14,.07],[0,-.147,.075],[.024,-.14,.07]],.003);return g;}
-export function boss(id){const root=new T.Group(),core=new T.Group();root.add(core);const color=id==='devourer'?'#b75582':id==='observer'?'#b9a0e7':'#a2d9e6',bright=toon(color,true),satellites=[];
+export function boss(id){const root=new T.Group(),core=new T.Group();root.add(core);const color=id==='devourer'?'#b75582':id==='observer'?'#b9a0e7':'#ffc47d',bright=toon(color,true),satellites=[];
  if(id==='warden'){
  // A fractured porcelain shrine carried by a narrow articulated chassis.
  const spine=surface(core,shadow,[[.5,.09],[1,.16],[1.5,.13],[1.8,.23],[2.15,.16],[2.35,.045]],.70);
  for(let j=0;j<7;j++){const y=.98+j*.16,w=.34-Math.abs(j-3)*.037;for(const s of [-1,1]){
  const rib=plate(core,porcelain,[[0,.08],[s*w,.03],[s*(w+.09),-.09],[s*.11,-.115]], [s*.055,y,.085]);rib.rotation.z=s*(.12+j*.022);tube(core,gold,[[s*.10,y+.04,.14],[s*.25,y-.02,.16],[s*.31,y-.11,.13]],.004);}}
  mask(core,color,[0,2.25,.10],.93);
- for(const s of [-1,1]){const wing=new T.Group();wing.position.set(s*.38,1.90,-.10);wing.rotation.z=s*.30;core.add(wing);satellites.push(wing);for(let j=0;j<5;j++){const x=s*j*.135;plate(wing,j%2?porcelain:'#8996b4',[[0,0],[s*.145,.25],[s*.22,-.17-j*.07],[s*.075,-.51-j*.05]], [x,-j*.12,j*.012]);tube(wing,gold,[[x+s*.04,-j*.12,.05],[x+s*.10,-.32-j*.15,.045],[x+s*.075,-.48-j*.17,.043]],.004);}
+ ring(core,bright,.29,.008,[0,2.28,-.07]);
+ for(let j=0;j<12;j++){const a=j/12*Math.PI*2;const crown=plate(core,bright,[[-.035,0],[0,.18],[.035,0]],[Math.cos(a)*.29,2.28+Math.sin(a)*.29,-.09]);crown.rotation.z=a-Math.PI/2;}
+ for(const s of [-1,1]){const wing=new T.Group();wing.position.set(s*.30,1.96,-.18);wing.rotation.z=s*.12;core.add(wing);satellites.push(wing);for(let j=0;j<6;j++){
+  const x=s*j*.10,y=-j*.135;
+  const feather=[[0,0],[s*.16,.16],[s*.48,.29],[s*(1.02-j*.045),.73-j*.035],[s*.73,.13],[s*.54,-.12],[s*.20,-.28],[s*.06,-.24]];
+  plate(wing,s>0?'#40213e':j%2?'#c09767':'#ead3a3',feather,[x,y,j*.012]);
+  tube(wing,bright,feather.concat([feather[0]]).map(([px,py])=>[px+x,py+y,.05+j*.012]),.006);
+  tube(wing,gold,[[x+s*.08,y-.10,.055+j*.012],[x+s*.4,y+.12,.055+j*.012],[x+s*.78,y+.42,.055+j*.012]],.005);
+ }
  const upper=[s*.15,.94,0],knee=[s*.26,.5,-.02],ankle=[s*.34,.12,.12];rod(core,shadow,upper,knee,.055);rod(core,porcelain,knee,ankle,.045,.055);ell(core,gold,knee,[.06,.06,.06]);plate(core,porcelain,[[0,.17],[s*.105,-.1],[-s*.043,-.2]], [s*.34,.16,.15]);
  mask(core,color,[s*.52,1.62,.17],.52);}
  ring(core,gold,.18,.012,[0,1.54,.245]);put(core,new T.OctahedronGeometry(.16),bright,[0,1.54,.245],[.6,1,.4]);
@@ -38,16 +46,78 @@ export function boss(id){const root=new T.Group(),core=new T.Group();root.add(co
 }
 export function animateBoss(enemy,time,reduced=false){const d=enemy.userData;d.core.position.y=reduced?0:Math.sin(time*.9)*.042;d.halo.rotation.z=reduced?0:time*.04;d.satellites.forEach((g,i)=>{if(d.id==='observer'){g.rotation.z=(reduced?0:time*.13*(i%2?1:-1))+i*.48;}else{g.rotation.x=reduced?0:Math.sin(time*1.2+i)*.045}});}
 
-export function environment(scene){const stage=new T.Group();scene.add(stage);const moving=[];
- // Expansive archive promenade with a platform, recessed inlay and repeated architecture.
- const floor=put(stage,new T.CylinderGeometry(8.8,9.1,.35,96),'#676d90',[0,-.205,-2]);floor.receiveShadow=true;
- for(let j=0;j<5;j++)ring(stage,j%2===0?toon('#879bb6',true):'#bbc1d0',2.4+j*1.34,.009,[0,-.023,-2],[Math.PI/2,0,0]);
- for(let j=0;j<40;j++){const a=j/40*Math.PI*2,x=Math.sin(a)*8.2,z=Math.cos(a)*8.2-2;const mark=cube(stage,'#b2b8d1',[x,-.018,z],[.017,.012,j%5===0?.30:.12]);mark.rotation.y=a;}
- for(let j=0;j<12;j++){const a=j/12*Math.PI*2;const points=[];for(let k=0;k<4;k++){const r=2.7+k*1.8;points.push([Math.cos(a)*r,-.016,Math.sin(a)*r-2])}tube(stage,'#47526e',points,.008);}
- for(let z=-15;z<=3;z+=3.4){for(const s of [-1,1]){const column=new T.Group();column.position.set(s*9,0,z);stage.add(column);cube(column,'#3f4967',[0,2.7,0],[.55,5.4,.64]);cube(column,'#8892ae',[0,.18,0],[.94,.36,.94]);cube(column,'#a6adc2',[0,5.41,0],[1.0,.14,1.0]);cube(column,'#bec4d8',[0,5.54,0],[.78,.13,.8]);for(const k of [-1,1])cube(column,'#697797',[k*.21,2.8,.325],[.025,4.8,.015]);cube(column,toon('#b6d0e3',true),[0,2.8,.328],[.035,4.65,.012]);
- const cross=new T.Group();cross.position.set(s*6.2,0,z);stage.add(cross);const a=ring(cross,'#6a7493',2.8,.075,[0,4.75,0]);a.scale.y=.87;cube(stage,'#465572',[s*9,5.7,z],[.8,.3,3.6]);}}
- for(let j=0;j<3;j++){const ring1=ring(stage,'#6e7793',4.0+j*.33,.08,[0,4.15,-13-j*.8]);ring1.scale.x=1.45;}
- const celestial=new T.Group();celestial.position.set(0,4.3,-15);stage.add(celestial);ring(celestial,toon('#d1c3e5',true),2.2,.008,[0,0,0]);ring(celestial,'#9698b6',1.95,.028,[0,0,0],[.5,.1,0]);moving.push(celestial);
- for(let j=0;j<36;j++){const a=j*2.399,r=5+(j%4)*1.3;const shard=put(stage,new T.OctahedronGeometry(.025+(j%3)*.025),toon(j%2?'#a4c7dc':'#cfbddd',true),[Math.sin(a)*r,1.3+(j%7)*.57,-5-Math.cos(a)*r]);moving.push(shard);}
- const sky=new T.Mesh(new T.SphereGeometry(46,40,24),new T.ShaderMaterial({side:T.BackSide,depthWrite:false,uniforms:{top:{value:new T.Color('#171e3b')},horizon:{value:new T.Color('#6c718f')}},vertexShader:'varying vec3 vWorld;void main(){vWorld=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'varying vec3 vWorld;uniform vec3 top;uniform vec3 horizon;void main(){float h=clamp(normalize(vWorld).y*.9+.20,0.,1.);gl_FragColor=vec4(mix(horizon,top,pow(h,.55)),1.);#include <colorspace_fragment> }'.replace(';#include',';\n#include').replace('> }','>\n}')}));sky.renderOrder=-10;stage.add(sky);
- batch(stage);return {stage,moving,sky,update(time,reduced){if(!reduced){celestial.rotation.z=time*.022;moving.slice(1).forEach((m,i)=>m.rotation.y=time*.14+i)}}};}
+export function environment(scene){
+ const stage=new T.Group();scene.add(stage);const moving=[];
+ const floor=put(stage,new T.CylinderGeometry(9.5,9.8,.38,96),'#9a304c',[0,-.23,-2]);floor.receiveShadow=true;
+ const rim=toon('#dcad86',true);
+ for(let j=0;j<4;j++)ring(stage,j===3?rim:'#ac7c70',3.4+j*1.7,j===3?.018:.009,[0,-.022,-2],[Math.PI/2,0,0]);
+ for(let j=0;j<48;j++){
+  const a=j/48*Math.PI*2,r=8.5;const mark=cube(stage,j%4? '#886067':rim,[Math.sin(a)*r,-.019,Math.cos(a)*r-2],[.019,.011,j%4?.13:.30]);mark.rotation.y=a;
+ }
+ for(let j=0;j<12;j++){
+  const a=j/12*Math.PI*2;tube(stage,'#473440',[[Math.sin(a)*3.4,-.017,Math.cos(a)*3.4-2],[Math.sin(a)*8.5,-.017,Math.cos(a)*8.5-2]],.011);
+ }
+ // Raised enamel discs and engraved arcs give the fighters grounded positions.
+ for(const [x,z,r] of [[2.25,-3,2.0],[-1.5,1.7,1.15]]){
+  put(stage,new T.CylinderGeometry(r,r,.03,72),'#ae435e',[x,-.017,z]);
+  ring(stage,'#e9a1ab',r-.1,.014,[x,.004,z],[Math.PI/2,0,0]);
+  ring(stage,'#d96f87',r-.24,.009,[x,.005,z],[Math.PI/2,0,0]);
+ }
+ // Luminous suspended strands and flower-shaped lanterns cross the middle depth.
+ const light=toon('#efdaff',true),deep='#694266';
+ for(let j=0;j<7;j++){
+  const x=-9+j*3,z=-7-Math.sin(j*.8)*1.4,h=2.4+(j%3)*.38;
+  const post=new T.Group();post.position.set(x,0,z);stage.add(post);
+  cube(post,deep,[0,h/2,0],[.18,h,.2]);cube(post,'#b888a8',[0,.12,0],[.42,.24,.42]);
+  ring(post,'#e8b9cd',.18,.025,[0,h-.1,0],[Math.PI/2,0,0]);
+  for(let k=0;k<5;k++){const a=k/5*Math.PI*2;put(post,new T.OctahedronGeometry(.13),light,[Math.cos(a)*.15,h+.22+Math.sin(a)*.15,0],[1,1,.5]);}
+  if(j<6){const nx=x+3,nz=-7-Math.sin((j+1)*.8)*1.4,nh=2.4+((j+1)%3)*.38;
+   for(let k=0;k<3;k++)tube(stage,k===1?'#edd3ec':'#a993ca',[[x,h-k*.12,z],[x+.75,h-.65-k*.12,z+.06],[x+1.5,(h+nh)/2-.85-k*.12,(z+nz)/2],[nx-.75,nh-.65-k*.12,nz+.06],[nx,nh-k*.12,nz]],k===1?.016:.011);
+  }
+ }
+ // Three depth layers of abstract archive ruins. They are actual scene geometry.
+ for(let layer=0;layer<3;layer++)for(let j=0;j<25;j++){
+  const x=(j-12)*1.75,z=-15-layer*5-(j%3)*.7,h=.7+((j*13+layer*7)%17)*.28;
+  const g=new T.Group();g.position.set(x,-.3,z);stage.add(g);
+  const shade=['#512244','#783452','#9e4368'][layer];
+  cube(g,shade,[0,h/2,0],[.35+(j%3)*.15,h,.75]);
+  const crown=put(g,new T.ConeGeometry(.28,h*.18,4),shade,[0,h+h*.09,0]);crown.rotation.z=(j%3-1)*.2;
+  cube(g,shade,[-.30,h*.37,.15],[.18,h*.75,.4]);
+  if(j%3===0)cube(g,'#a45255',[.1,h*.68,.385],[.018,h*.45,.012]);
+ }
+ for(const [x,z,h,tilt] of [[-6,-7,10,.07],[-11,-17,15,-.08],[7.5,-12,12,-.04],[13,-22,18,.06]]){
+  const tower=new T.Group();tower.position.set(x,-.5,z);tower.rotation.z=tilt;stage.add(tower);
+  cube(tower,'#352135',[0,h/2,0],[.80,h,1.12]);cube(tower,'#51283c',[.52,h*.44,.08],[.19,h*.88,.86]);
+  cube(tower,'#b55e5e',[-.35,h*.45,.57],[.025,h*.83,.016]);
+  for(let k=0;k<6;k++)cube(tower,'#422238',[.2+(k%2)*.3,h*.12+k*.9,.6],[.25,.9,.22]);
+ }
+ // Floating slabs, broken halos and a warm horizon establish scale without a room-like ceiling.
+ for(let j=0;j<16;j++){
+  const shard=cube(stage,'#593348',[(j%2?1:-1)*(5+j*.37),2.7+(j%5)*1.3,-8-(j%6)*1.5],[.12,.6+(j%3)*.4,.27]);
+  shard.rotation.set(.1,j*.6,.15);moving.push(shard);
+ }
+ const celestial=new T.Group();celestial.position.set(3.5,5.7,-23);stage.add(celestial);
+ ring(celestial,toon('#ffce93',true),3.7,.018,[0,0,0]);ring(celestial,'#ba7668',4.05,.014,[0,0,-.1]);
+ for(let j=0;j<12;j++){const a=j/12*Math.PI*2;const mark=cube(celestial,rim,[Math.cos(a)*3.7,Math.sin(a)*3.7,0],[.012,.16,.012]);mark.rotation.z=a-Math.PI/2;}
+ for(let j=0;j<22;j++){
+  const a=j*2.399,r=5+(j%5)*.8;const shard=put(stage,new T.OctahedronGeometry(.015+(j%3)*.012),toon('#f8c59a',true),[Math.sin(a)*r,.6+(j%8)*.54,-6-Math.cos(a)*r]);moving.push(shard);
+ }
+ const sky=new T.Mesh(new T.SphereGeometry(46,32,20),new T.ShaderMaterial({side:T.BackSide,depthWrite:false,uniforms:{top:{value:new T.Color('#481923')},horizon:{value:new T.Color('#dc725d')}},vertexShader:'varying vec3 vWorld;void main(){vWorld=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:`
+ varying vec3 vWorld;uniform vec3 top;uniform vec3 horizon;
+ float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+ float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
+ float cloudNoise(vec2 p){return noise(p)*.53+noise(p*2.1)*.26+noise(p*4.3)*.13+noise(p*8.7)*.08;}
+ void main(){vec3 d=normalize(vWorld);float h=clamp(d.y*.95+.14,0.,1.);vec3 color=mix(horizon,top,pow(h,.62));
+ float curve=d.y*.9+d.x*.20+sin(d.x*5.)*.04;
+ float cloud=(1.-smoothstep(0.,.020,abs(curve-.48)))*smoothstep(-.5,.8,d.x);
+ float cloud2=1.-smoothstep(0.,.014,abs(curve-.63));
+ float mist=cloudNoise(d.xy*vec2(9.,14.)+vec2(1.3,2.1));
+ float glow=exp(-length((d.xy-vec2(.24,.28))*vec2(1.5,2.0))*2.4);
+ color=mix(color,vec3(.92,.18,.48),glow*.62);
+ color+=vec3(.55,.17,.29)*smoothstep(.45,.78,mist)*glow;
+ color+=vec3(.42,.18,.30)*(cloud*.35+cloud2*.15);
+ gl_FragColor=vec4(color,1.);
+ #include <colorspace_fragment>
+ }`}));sky.renderOrder=-10;stage.add(sky);
+ batch(stage);return {stage,moving,sky,update(time,reduced){if(!reduced){celestial.rotation.z=time*.006;moving.forEach((m,i)=>{m.rotation.y=time*.05+i;});}}};
+}
